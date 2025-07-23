@@ -53,7 +53,6 @@ export async function apply(ctx: Context, config: Config) {
             throw new Error("Content is empty");
         }
         const match = session.content.match(/^(.+?)天气\s*$|^天气(.+?)\s*$/);
-        ctx.logger.info(`Received command: ${session.content}`);
         if (match) {
             const location = (match[1] || match[2] || "").trim();
             if (!location) {
