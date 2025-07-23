@@ -63,8 +63,7 @@ export async function apply(ctx: Context, config: Config) {
             if (!(config.qweather_apikey || config.qweather_use_jwt)) {
                 throw new Error("请配置 API Key 或启用 JWT 模式");
             }
-
-            const w_data = new Weather(location, config);
+            const w_data: Weather = new Weather(location, config);
             try {
                 await w_data.load();
             } catch (error) {
@@ -72,6 +71,7 @@ export async function apply(ctx: Context, config: Config) {
                     await session.send(`未找到城市: ${location}`);
                     return;
                 }
+                await session.send("查询天气信息失败");
                 throw error;
             }
             let air = null;
