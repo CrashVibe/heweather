@@ -52,6 +52,7 @@ export async function apply(ctx: Context, config: Config) {
         if (!session.content) {
             return;
         }
+
         const match = session.content.match(/^(.+?)天气\s*$|^天气(.+?)\s*$/);
         if (match) {
             const location = (match[1] || match[2] || "").trim();
@@ -59,44 +60,55 @@ export async function apply(ctx: Context, config: Config) {
                 await session.send("请输入一个有效的地点");
                 return;
             }
-            await session.send(`查询 ${location} 的天气信息...`);
-            if (!(config.qweather_apikey || config.qweather_use_jwt)) {
-                throw new Error("请配置 API Key 或启用 JWT 模式");
-            }
-            const w_data: Weather = new Weather(location, config);
-            try {
-                await w_data.load();
-            } catch (error) {
-                if (error instanceof CityNotFoundError) {
-                    await session.send(`未找到城市: ${location}`);
-                    return;
-                }
-                await session.send("查询天气信息失败");
-                throw error;
-            }
-            let air = null;
-            if (w_data.air && w_data.air.now) {
-                air = add_tag_color(w_data.air.now);
-            }
-
-            const templateDir = path.resolve(__dirname, "templates");
-            const image = await ctx.html_renderer.render_template_html_file(
-                templateDir,
-                "weather.ejs",
-                {
-                    now: w_data.now.now,
-                    days: add_date(w_data.daily.daily),
-                    city: w_data.cityName,
-                    warning: w_data.warning,
-                    air: air,
-                    hours: add_hour_data(w_data.hourly.hourly, config.qweather_hourlytype, config.timezone)
-                },
-                {
-                    viewport: { width: 1000, height: 1250 },
-                    base_url: `file://${templateDir}`
-                }
-            );
-            await session.send(h.image(image, "image/png"));
+            await session.execute(`heweather ${location}`);
         }
     });
+
+    ctx.command("heweather <location:text>", "查询天气信息")
+        .alias("天气")
+        .action(async ({ session }, location) => {
+            if (!session) {
+                throw new Error("会话不存在");
+            }
+            if (location) {
+                await session.send(`查询 ${location} 的天气信息...`);
+                if (!(config.qweather_apikey || config.qweather_use_jwt)) {
+                    throw new Error("请配置 API Key 或启用 JWT 模式");
+                }
+                const w_data: Weather = new Weather(location, config);
+                try {
+                    await w_data.load();
+                } catch (error) {
+                    if (error instanceof CityNotFoundError) {
+                        await session.send(`未找到城市: ${location}`);
+                        return;
+                    }
+                    await session.send("查询天气信息失败");
+                    throw error;
+                }
+                let air = null;
+                if (w_data.air && w_data.air.now) {
+                    air = add_tag_color(w_data.air.now);
+                }
+
+                const templateDir = path.resolve(__dirname, "templates");
+                const image = await ctx.html_renderer.render_template_html_file(
+                    templateDir,
+                    "weather.ejs",
+                    {
+                        now: w_data.now.now,
+                        days: add_date(w_data.daily.daily),
+                        city: w_data.cityName,
+                        warning: w_data.warning,
+                        air: air,
+                        hours: add_hour_data(w_data.hourly.hourly, config.qweather_hourlytype, config.timezone)
+                    },
+                    {
+                        viewport: { width: 1000, height: 1250 },
+                        base_url: `file://${templateDir}`
+                    }
+                );
+                await session.send(h.image(image, "image/png"));
+            }
+        });
 }
