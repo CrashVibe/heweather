@@ -6,7 +6,7 @@ import { add_date, add_hour_data, add_tag_color } from "./utils";
 import {} from "koishi-plugin-html-renderer/src";
 
 export const name = "heweather";
-export const inject = ["html_renderer"];
+export const inject = ["html_renderer", "database"];
 
 export interface Config {
     timezone: string;
@@ -49,8 +49,20 @@ export const Config: Schema<Config> = Schema.object({
 
 export async function apply(ctx: Context, config: Config) {
     ctx.on("message", async (session) => {
-        if (!session.content || (await session.getChannel()).assignee !== session.bot.selfId) {
+        if (!session || !session.content) {
             return;
+        }
+        if (session.guildId) {
+            const targetChannels = await ctx.database.get("channel", {
+                id: session.guildId,
+                platform: session.platform
+            });
+            if (targetChannels.length === 0) {
+                return;
+            }
+            if (targetChannels[0].assignee !== session.selfId) {
+                return;
+            }
         }
 
         const match = session.content.match(/^(.+?)天气\s*$|^天气(.+?)\s*$/);
