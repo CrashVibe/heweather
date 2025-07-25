@@ -49,7 +49,7 @@ export const Config: Schema<Config> = Schema.object({
 
 export async function apply(ctx: Context, config: Config) {
     ctx.on("message", async (session) => {
-        if (!session.content) {
+        if (!session.content || (await session.getChannel()).assignee !== session.bot.selfId) {
             return;
         }
 
