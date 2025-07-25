@@ -50,7 +50,7 @@ export const Config: Schema<Config> = Schema.object({
 export async function apply(ctx: Context, config: Config) {
     ctx.on("message", async (session) => {
         if (!session.content) {
-            throw new Error("Content is empty");
+            return;
         }
         const match = session.content.match(/^(.+?)天气\s*$|^天气(.+?)\s*$/);
         if (match) {
