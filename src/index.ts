@@ -80,7 +80,7 @@ export async function apply(ctx: Context, config: Config) {
         .alias("天气")
         .action(async ({ session }, location) => {
             if (!session) {
-                throw new Error("会话不存在");
+                throw new Error("无法获取会话信息");
             }
             if (location) {
                 await session.send(`查询 ${location} 的天气信息...`);
