@@ -72,16 +72,20 @@ export async function apply(ctx: Context, config: Config) {
                 await session.send("请输入一个有效的地点");
                 return;
             }
-            await session.execute(`heweather ${location}`);
+            await session.execute(`heweather -l ${location}`);
         }
     });
 
-    ctx.command("heweather <location:text>", "查询天气信息")
-        .alias("天气")
-        .action(async ({ session }, location) => {
-            if (!session) {
+    ctx.command("heweather", "查询天气信息")
+        .option("location", "-l <location:string>")
+        .action(async ({ session, options }) => {
+            if (!session || !options) {
                 throw new Error("无法获取会话信息");
+            } else if (session.content?.includes("天气")) {
+                return;
             }
+            const options_result = JSON.parse(JSON.stringify(options));
+            const { location } = options_result;
             if (location) {
                 await session.send(`查询 ${location} 的天气信息...`);
                 if (!(config.qweather_apikey || config.qweather_use_jwt)) {
