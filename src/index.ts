@@ -57,6 +57,9 @@ export async function apply(ctx: Context, config: Config) {
                 id: session.guildId,
                 platform: session.platform
             });
+            if (!targetChannels || targetChannels.length === 0) {
+                return;
+            }
             if (targetChannels.length === 0) {
                 return;
             }
@@ -81,11 +84,12 @@ export async function apply(ctx: Context, config: Config) {
         .action(async ({ session, options }) => {
             if (!session || !options) {
                 throw new Error("无法获取会话信息");
-            } else if (session.content?.includes("天气")) {
-                return;
             }
             const options_result = JSON.parse(JSON.stringify(options));
             const { location } = options_result;
+            if (location.includes("天气")) {
+                return;
+            }
             if (location) {
                 await session.send(`查询 ${location} 的天气信息...`);
                 if (!(config.qweather_apikey || config.qweather_use_jwt)) {
