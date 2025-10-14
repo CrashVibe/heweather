@@ -33,7 +33,10 @@ export class Weather {
     public warning!: WarningApi | null;
     public hourly!: HourlyApi;
 
-    constructor(public cityName: string, config: Config) {
+    constructor(
+        public cityName: string,
+        config: Config
+    ) {
         this.config = config;
         this._validateForecastDays();
     }
