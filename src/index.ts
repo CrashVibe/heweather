@@ -72,7 +72,7 @@ export async function apply(ctx: Context, config: Config) {
         if (match) {
             const location = (match[1] || match[2] || "").trim();
             if (!location) {
-                await session.send("请输入一个有效的地点");
+                await session.send(h.quote(session.messageId) + "请输入一个有效的地点");
                 return;
             }
             await session.execute(`heweather -l ${location}`);
@@ -91,7 +91,7 @@ export async function apply(ctx: Context, config: Config) {
                 return;
             }
             if (location) {
-                await session.send(`查询 ${location} 的天气信息...`);
+                await session.send(h.quote(session.messageId) + `查询 ${location} 的天气信息...`);
                 if (!(config.qweather_apikey || config.qweather_use_jwt)) {
                     throw new Error("请配置 API Key 或启用 JWT 模式");
                 }
@@ -100,10 +100,10 @@ export async function apply(ctx: Context, config: Config) {
                     await w_data.load();
                 } catch (error) {
                     if (error instanceof CityNotFoundError) {
-                        await session.send(`未找到城市: ${location}`);
+                        await session.send(h.quote(session.messageId) + `未找到城市: ${location}`);
                         return;
                     }
-                    await session.send("查询天气信息失败");
+                    await session.send(h.quote(session.messageId) + "查询天气信息失败");
                     throw error;
                 }
                 let air = null;
@@ -128,7 +128,7 @@ export async function apply(ctx: Context, config: Config) {
                         base_url: `file://${templateDir}`
                     }
                 );
-                await session.send(h.image(image, "image/png"));
+                await session.send([h.quote(session.messageId), h.image(image, "image/png")]);
             }
         });
 }
