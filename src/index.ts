@@ -1,6 +1,6 @@
 import { Context, h, Schema } from "koishi";
 import { HourlyType } from "./model";
-import { CityNotFoundError, Weather } from "./weather_data";
+import { CityNotFoundError, Weather } from "./services";
 import * as path from "path";
 import { add_date, add_hour_data, add_tag_color } from "./utils";
 import {} from "koishi-plugin-html-renderer/src";

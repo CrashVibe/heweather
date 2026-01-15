@@ -1,6 +1,6 @@
 import moent from "moment-timezone";
 import { Air, Hourly, HourlyType } from "./model";
-import { ConfigError } from "./weather_data";
+import { ConfigError } from "./services";
 import { importPKCS8, SignJWT } from "jose";
 
 export interface JwtConfig {
